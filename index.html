@@ -2607,32 +2607,53 @@
   </script>
 
   <audio id="bgMusic" loop preload="auto" playsinline>
-    <source src="./bgm.mp3" type="audio/mpeg">
     <source src="./bgm.m4a" type="audio/mp4">
-    <source src="./bgm.wav" type="audio/wav">
+    <source src="./bgm.mp3" type="audio/mpeg">
   </audio>
 
   <script>
     (() => {
       const audio = document.getElementById('bgMusic');
-      audio.volume = 0.5;
+      audio.volume = 0.45;
       let started = false;
+      let readyToPlay = false;
+
+      // 等待缓冲足够再播放
+      audio.addEventListener('canplaythrough', () => { readyToPlay = true; }, { once: true });
+      audio.addEventListener('loadeddata', () => { readyToPlay = true; }, { once: true });
 
       function start() {
         if (started) return;
-        audio.play().then(() => { started = true; }).catch(() => {});
+        started = true;
+        const tryPlay = () => {
+          audio.play().catch(() => {
+            // 如果缓冲不够，等一下再试
+            setTimeout(tryPlay, 200);
+          });
+        };
+        if (readyToPlay) {
+          tryPlay();
+        } else {
+          audio.addEventListener('canplaythrough', tryPlay, { once: true });
+          setTimeout(tryPlay, 500); // 兜底：500ms后也尝试
+        }
       }
 
-      // iOS 需要用户手势才能播放，首次触摸即自动开始
+      // 缓冲不足导致停顿时自动恢复
+      audio.addEventListener('waiting', () => {
+        // waiting时浏览器会自动缓冲，不需要手动处理
+      });
+
+      // 防止意外暂停
+      audio.addEventListener('pause', () => {
+        if (started) setTimeout(() => audio.play().catch(() => {}), 100);
+      });
+
+      // iOS 需要用户手势
       document.addEventListener('touchstart', start, { once: true });
       document.addEventListener('pointerdown', start, { once: true });
       document.addEventListener('click', start, { once: true });
       document.addEventListener('keydown', start, { once: true });
-
-      // 防止被意外暂停
-      audio.addEventListener('pause', () => {
-        if (started) audio.play().catch(() => {});
-      });
     })();
   </script>
 </body>

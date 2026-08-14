@@ -554,46 +554,6 @@
       background: linear-gradient(180deg, #b4f2ff 0%, #50d5ee 50%, #2ea9c9 100%);
     }
 
-    .music-toggle {
-      position: fixed;
-      right: max(16px, env(safe-area-inset-right));
-      bottom: max(16px, env(safe-area-inset-bottom));
-      z-index: 100;
-      width: 48px;
-      height: 48px;
-      border: 3px solid var(--ink-outline);
-      border-radius: 50%;
-      background: linear-gradient(180deg, #fff58a 0%, #ffd23c 50%, #f0a620 100%);
-      box-shadow: 4px 5px 0 rgba(19, 40, 66, 0.4);
-      cursor: pointer;
-      display: grid;
-      place-items: center;
-      font-size: 22px;
-      padding: 0;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .music-toggle:active {
-      transform: translate(2px, 3px);
-      box-shadow: 2px 2px 0 rgba(19, 40, 66, 0.4);
-    }
-    .music-toggle.playing {
-      background: linear-gradient(180deg, #b4f2ff 0%, #50d5ee 50%, #2ea9c9 100%);
-    }
-    .music-toggle.playing::after {
-      content: '';
-      position: absolute;
-      inset: -6px;
-      border-radius: 50%;
-      border: 2px solid rgba(255, 255, 255, 0.6);
-      animation: music-ring 1.6s ease-out infinite;
-      pointer-events: none;
-    }
-    @keyframes music-ring {
-      0% { transform: scale(1); opacity: 0.8; }
-      100% { transform: scale(1.35); opacity: 0; }
-    }
-
     .hidden { display: none !important; }
 
     .panel-reef {
@@ -2643,44 +2603,33 @@
     })();
   </script>
 
-  <audio id="bgMusic" loop preload="auto" crossorigin="anonymous">
+  <audio id="bgMusic" loop preload="auto" playsinline>
     <source src="./bgm.mp3" type="audio/mpeg">
     <source src="./bgm.m4a" type="audio/mp4">
     <source src="./bgm.wav" type="audio/wav">
   </audio>
-  <button class="music-toggle" id="musicToggle" type="button" aria-label="播放背景音乐">🎵</button>
 
   <script>
     (() => {
       const audio = document.getElementById('bgMusic');
-      const toggle = document.getElementById('musicToggle');
-      let musicStarted = false;
+      audio.volume = 0.5;
+      let started = false;
 
-      function tryStart() {
-        if (musicStarted) return;
-        audio.play().then(() => {
-          musicStarted = true;
-          toggle.classList.add('playing');
-          toggle.textContent = '🔊';
-        }).catch(() => {});
+      function start() {
+        if (started) return;
+        audio.play().then(() => { started = true; }).catch(() => {});
       }
 
-      toggle.addEventListener('click', () => {
-        if (audio.paused) {
-          audio.play().then(() => {
-            toggle.classList.add('playing');
-            toggle.textContent = '🔊';
-          }).catch(() => {});
-        } else {
-          audio.pause();
-          toggle.classList.remove('playing');
-          toggle.textContent = '🎵';
-        }
-      });
+      // iOS 需要用户手势才能播放，首次触摸即自动开始
+      document.addEventListener('touchstart', start, { once: true });
+      document.addEventListener('pointerdown', start, { once: true });
+      document.addEventListener('click', start, { once: true });
+      document.addEventListener('keydown', start, { once: true });
 
-      document.addEventListener('pointerdown', tryStart, { once: true });
-      document.addEventListener('touchstart', tryStart, { once: true });
-      document.addEventListener('click', tryStart, { once: true });
+      // 防止被意外暂停
+      audio.addEventListener('pause', () => {
+        if (started) audio.play().catch(() => {});
+      });
     })();
   </script>
 </body>

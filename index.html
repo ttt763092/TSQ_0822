@@ -299,16 +299,19 @@
     .bday-h1 .name {
       display: block;
       margin-bottom: 6px;
-      font-family: "Songti SC", "SimSun", "STSong", "Noto Serif CJK SC",
-        "Source Han Serif SC", "Times New Roman", serif;
-      font-weight: 700;
-      color: #ffffff;
-      -webkit-text-fill-color: #ffffff;
-      text-shadow:
-        0 0 2px rgba(255, 255, 255, 0.9),
-        0 0 10px rgba(255, 230, 150, 0.6),
-        0 2px 6px rgba(26, 60, 90, 0.35);
-      letter-spacing: 0.08em;
+      font-family: "PingFang SC", "PingFang TC", "Hiragino Sans GB",
+        "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+      font-weight: 800;
+      font-size: 1.18em;
+      background: linear-gradient(180deg, #fffbe6 0%, #ffe08a 35%, #ff9ecb 70%, #ff7aa8 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter:
+        drop-shadow(0 2px 0 rgba(19, 40, 66, 0.6))
+        drop-shadow(0 4px 10px rgba(255, 140, 190, 0.5))
+        drop-shadow(0 0 16px rgba(255, 220, 130, 0.4));
+      letter-spacing: 0.1em;
     }
     .bday-h1 .accent {
       background: linear-gradient(135deg, #ffffff 0%, #fffbcc 18%, #ffe074 40%, #ffa95e 66%, #ff759c 100%);
